@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="QA Agent Hub - Local LLM QA Agent Orchestrator powered by the BLAST Framework and Ollama llama3.2">
+  <title>QA Agent Hub | BLAST Framework</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Loading Spinner Overlay -->
+  <div id="loading-overlay" class="loading-overlay" aria-hidden="true">
+    <div class="loading-card">
+      <div class="loading-spinner-ring"></div>
+      <div class="loading-badge">BLAST QA ORCHESTRATOR</div>
+      <h2 class="loading-title">QA Agent Hub</h2>
+      <p id="loading-status-text" class="loading-subtitle">Initializing agents & connecting to Ollama (localhost:11434)...</p>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast-notification" class="toast-notification" role="status" aria-live="polite">
+    <span id="toast-icon" class="toast-icon">✨</span>
+    <div class="toast-content">
+      <p id="toast-message" class="toast-message">Notification message</p>
+    </div>
+    <button id="toast-close-btn" class="toast-close-btn" aria-label="Close notification">&times;</button>
+  </div>
+
+  <!-- Main Application Layout -->
+  <div id="app-root" class="app-layout">
+    
+    <!-- Left Sidebar (280px) -->
+    <aside id="sidebar" class="sidebar">
+      
+      <!-- Brand & Logo -->
+      <div id="sidebar-logo" class="sidebar-logo">
+        <div class="logo-icon-wrapper">
+          <span class="logo-emoji">⚡</span>
+          <div class="logo-glow"></div>
+        </div>
+        <div class="logo-text-group">
+          <h1 id="app-title" class="logo-title">QA Agent Hub</h1>
+          <span id="app-subtitle" class="logo-subtitle">BLAST Framework</span>
+        </div>
+      </div>
+
+      <!-- Ollama Connection Status Indicator -->
+      <div id="ollama-status-card" class="ollama-status-card">
+        <div class="status-header">
+          <span class="status-label">LLM RUNTIME</span>
+          <span id="ollama-port-badge" class="port-badge">:11434</span>
+        </div>
+        <div class="status-body">
+          <span id="ollama-status-dot" class="status-dot connecting"></span>
+          <div class="status-info">
+            <span id="ollama-status-text" class="status-name">Checking Ollama...</span>
+            <span id="ollama-model-text" class="status-meta">Model: llama3.2</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent Navigation Title -->
+      <div class="sidebar-section-header">
+        <span class="section-title">ACTIVE AGENTS (5)</span>
+        <span class="section-badge">LOCAL</span>
+      </div>
+
+      <!-- Agent Selector Cards -->
+      <div id="agent-list" class="agent-list" role="radiogroup" aria-label="QA Orchestrator Agents">
+        
+        <!-- Agent 1: BlueprintAgent (Phase B) -->
+        <button id="agent-card-blueprint" class="agent-card active" data-agent="BlueprintAgent" role="radio" aria-checked="true">
+          <div class="agent-card-header">
+            <div class="agent-avatar-box">
+              <span class="agent-emoji">🏗️</span>
+            </div>
+            <div class="agent-title-group">
+              <div class="agent-name-row">
+                <span class="agent-name">BlueprintAgent</span>
+              </div>
+              <span class="agent-phase-badge phase-b">Phase B</span>
+            </div>
+          </div>
+          <p class="agent-desc">Test Strategy, Architecture &amp; Data Schemas</p>
+        </button>
+
+        <!-- Agent 2: SentinelAgent (Phase L) -->
+        <button id="agent-card-sentinel" class="agent-card" data-agent="SentinelAgent" role="radio" aria-checked="false">
+          <div class="agent-card-header">
+            <div class="agent-avatar-box">
+              <span class="agent-emoji">🛡️</span>
+            </div>
+            <div class="agent-title-group">
+              <div class="agent-name-row">
+                <span class="agent-name">SentinelAgent</span>
+              </div>
+              <span class="agent-phase-badge phase-l">Phase L</span>
+            </div>
+          </div>
+          <p class="agent-desc">API Validation, Schema &amp; Invariant Protection</p>
+        </button>
+
+        <!-- Agent 3: NavigatorAgent (Phase A) -->
+        <button id="agent-card-navigator" class="agent-card" data-agent="NavigatorAgent" role="radio" aria-checked="false">
+          <div class="agent-card-header">
+            <div class="agent-avatar-box">
+              <span class="agent-emoji">🧭</span>
+            </div>
+            <div class="agent-title-group">
+              <div class="agent-name-row">
+                <span class="agent-name">NavigatorAgent</span>
+              </div>
+              <span class="agent-phase-badge phase-a">Phase A</span>
+            </div>
+          </div>
+          <p class="agent-desc">E2E Playwright Journeys &amp; UI Checkout Flow</p>
+        </button>
+
+        <!-- Agent 4: TriageAgent (Phase S) -->
+        <button id="agent-card-triage" class="agent-card" data-agent="TriageAgent" role="radio" aria-checked="false">
+          <div class="agent-card-header">
+            <div class="agent-avatar-box">
+              <span class="agent-emoji">🔬</span>
+            </div>
+            <div class="agent-title-group">
+              <div class="agent-name-row">
+                <span class="agent-name">TriageAgent</span>
+              </div>
+              <span class="agent-phase-badge phase-s">Phase S</span>
+            </div>
+          </div>
+          <p class="agent-desc">Failure Diagnostics, Stack Traces &amp; Root Cause</p>
+        </button>
+
+        <!-- Agent 5: VerdictAgent (Phase T) -->
+        <button id="agent-card-verdict" class="agent-card" data-agent="VerdictAgent" role="radio" aria-checked="false">
+          <div class="agent-card-header">
+            <div class="agent-avatar-box">
+              <span class="agent-emoji">⚖️</span>
+            </div>
+            <div class="agent-title-group">
+              <div class="agent-name-row">
+                <span class="agent-name">VerdictAgent</span>
+              </div>
+              <span class="agent-phase-badge phase-t">Phase T</span>
+            </div>
+          </div>
+          <p class="agent-desc">Quality Gatekeeper, Thresholds &amp; Sign-off</p>
+        </button>
+
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div id="sidebar-footer" class="sidebar-footer">
+        <div class="sut-info-pill">
+          <span class="sut-dot"></span>
+          <span class="sut-text">SUT: Medusa.js • Port 3000</span>
+        </div>
+        <button id="btn-clear-history" class="btn-clear-history" title="Clear chat history from local storage">
+          <span class="clear-icon">🗑️</span>
+          <span>Clear History</span>
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- Main Chat Workspace -->
+    <main id="main-chat" class="main-chat">
+      
+      <!-- Top Chat Header -->
+      <header id="chat-header" class="chat-header">
+        <div class="chat-header-left">
+          <div id="header-agent-avatar" class="header-agent-avatar">
+            <span id="active-agent-emoji" class="header-agent-emoji">🏗️</span>
+          </div>
+          <div class="header-agent-meta">
+            <div class="header-agent-title-row">
+              <h2 id="active-agent-name" class="active-agent-name">BlueprintAgent</h2>
+              <span id="active-agent-phase" class="agent-phase-badge phase-b">Phase B</span>
+            </div>
+            <p id="active-agent-role" class="active-agent-role">Test Strategy, Architecture &amp; Data Schemas</p>
+          </div>
+        </div>
+
+        <div class="chat-header-right">
+          <div class="connection-indicator">
+            <span id="header-status-dot" class="status-dot connecting"></span>
+            <span id="header-status-text" class="header-status-text">Connecting</span>
+          </div>
+          <div class="header-divider"></div>
+          <span class="runtime-badge">llama3.2 @ 11434</span>
+        </div>
+      </header>
+
+      <!-- Chat Messages Container -->
+      <section id="chat-messages-container" class="chat-messages-container" aria-label="Conversation messages">
+        <div id="chat-messages" class="chat-messages">
+          <!-- Dynamic message bubbles injected via app.js -->
+        </div>
+      </section>
+
+      <!-- Bottom Chat Controls & Input -->
+      <footer id="chat-controls-area" class="chat-controls-area">
+        
+        <!-- Quick Action Chips Bar -->
+        <div id="quick-actions-bar" class="quick-actions-bar" aria-label="Quick QA directives">
+          <span class="quick-actions-label">Quick Actions:</span>
+          
+          <button id="chip-login" class="action-chip" data-template="Execute an end-to-end test journey for the customer authentication and login flow on Medusa eCommerce. Validate valid credentials, invalid password error handling, and session persistence.">
+            <span class="chip-icon">🔑</span>
+            <span class="chip-text">Test Login Flow</span>
+          </button>
+          
+          <button id="chip-api" class="action-chip" data-template="Validate the Medusa REST API endpoints against data schema invariants: GET /store/products, POST /store/carts, POST /store/carts/{id}/line-items, and POST /store/orders. Verify status codes, content-types, and required fields.">
+            <span class="chip-icon">⚡</span>
+            <span class="chip-text">Test API Endpoints</span>
+          </button>
+          
+          <button id="chip-classify" class="action-chip" data-template="Classify this QA test failure: 'AssertionError: Cart line item total calculated as 0 cents instead of positive integer during checkout step'. Determine BLAST phase, root cause, severity (P1-P4), and remediation steps.">
+            <span class="chip-icon">🔬</span>
+            <span class="chip-text">Classify Failure</span>
+          </button>
+          
+          <button id="chip-report" class="action-chip" data-template="Generate a comprehensive BLAST Framework QA Executive Summary report. Include test coverage metrics, invariant pass rate across the 5 phases, top critical defects, and deployment release readiness.">
+            <span class="chip-icon">📊</span>
+            <span class="chip-text">Generate Report</span>
+          </button>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form id="chat-form" class="chat-input-wrapper" onsubmit="return false;">
+          <div class="input-glass-container">
+            <textarea 
+              id="chat-textarea" 
+              class="chat-textarea" 
+              placeholder="Ask BlueprintAgent a question or type a QA directive... (Press Enter to send, Shift+Enter for newline)"
+              rows="1"
+              aria-label="Message prompt to agent"
+            ></textarea>
+            
+            <button id="send-btn" class="send-btn" type="button" aria-label="Send message">
+              <span class="send-text">Send</span>
+              <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+          
+          <div class="input-helper-row">
+            <span class="helper-text"><span>Enter</span> to send &bull; <span>Shift+Enter</span> for new line &bull; <span>Esc</span> to clear</span>
+            <span id="char-counter" class="char-counter">0 chars</span>
+          </div>
+        </form>
+
+      </footer>
+
+    </main>
+
+  </div>
+
+  <!-- Application Logic -->
+  <script src="app.js" defer></script>
+</body>
+</html>

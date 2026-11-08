@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QA Dashboard | BLAST Framework</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-color: #0a0a0f;
+      --card-bg: #12121a;
+      --card-border: #232336;
+      --card-hover: #181824;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-sub: #6b7280;
+      --purple: #6c63ff;
+      --purple-glow: rgba(108, 99, 255, 0.25);
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.2);
+      --red: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.2);
+      --yellow: #f59e0b;
+      --yellow-glow: rgba(245, 158, 11, 0.2);
+      --blue: #3b82f6;
+      --blue-glow: rgba(59, 130, 246, 0.2);
+      --gray: #6b7280;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.5;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--purple);
+      background: rgba(108, 99, 255, 0.12);
+      padding: 3px 10px;
+      border-radius: 9999px;
+      width: fit-content;
+      border: 1px solid rgba(108, 99, 255, 0.3);
+    }
+
+    .header-title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 30%, #9ca3af 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .timestamp-badge {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .timestamp-badge span {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      font-family: inherit;
+    }
+
+    .btn-secondary {
+      background: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--card-hover);
+      border-color: var(--purple);
+    }
+
+    .btn-primary {
+      background: var(--purple);
+      color: #ffffff;
+      box-shadow: 0 4px 14px var(--purple-glow);
+    }
+
+    .btn-primary:hover {
+      background: #5b52e0;
+      transform: translateY(-1px);
+    }
+
+    /* Verdict Banner */
+    .verdict-banner {
+      border-radius: 14px;
+      padding: 24px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid;
+      transition: all 0.3s ease;
+    }
+
+    .verdict-banner.verdict-go {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(18, 18, 26, 0.95) 100%);
+      border-color: rgba(16, 185, 129, 0.5);
+      box-shadow: 0 8px 32px var(--green-glow);
+    }
+
+    .verdict-banner.verdict-go-with-risks {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(18, 18, 26, 0.95) 100%);
+      border-color: rgba(245, 158, 11, 0.5);
+      box-shadow: 0 8px 32px var(--yellow-glow);
+    }
+
+    .verdict-banner.verdict-no-go {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(18, 18, 26, 0.95) 100%);
+      border-color: rgba(239, 68, 68, 0.5);
+      box-shadow: 0 8px 32px var(--red-glow);
+    }
+
+    .verdict-banner.verdict-none {
+      background: var(--card-bg);
+      border-color: var(--card-border);
+    }
+
+    .verdict-content {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .verdict-pill {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      padding: 8px 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .verdict-go .verdict-pill {
+      background: var(--green);
+      color: #064e3b;
+    }
+
+    .verdict-go-with-risks .verdict-pill {
+      background: var(--yellow);
+      color: #78350f;
+    }
+
+    .verdict-no-go .verdict-pill {
+      background: var(--red);
+      color: #7f1d1d;
+    }
+
+    .verdict-none .verdict-pill {
+      background: var(--gray);
+      color: #ffffff;
+    }
+
+    .verdict-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .verdict-tagline {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .verdict-message {
+      font-size: 1.05rem;
+      color: var(--text-main);
+      max-width: 750px;
+    }
+
+    .verdict-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .run-badge {
+      font-family: monospace;
+      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #e5e7eb;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+
+    .card:hover {
+      border-color: var(--purple);
+      background: var(--card-hover);
+    }
+
+    .card-total {
+      border-top: 4px solid var(--blue);
+    }
+    .card-passed {
+      border-top: 4px solid var(--green);
+    }
+    .card-failed {
+      border-top: 4px solid var(--red);
+    }
+    .card-skipped {
+      border-top: 4px solid var(--gray);
+    }
+
+    .card-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .card-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .card-icon {
+      font-size: 1.25rem;
+    }
+
+    .card-value {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .card-subtext {
+      font-size: 0.825rem;
+      color: var(--text-sub);
+    }
+
+    /* Two column grid for Suite breakdown */
+    .suites-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-pill {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text-muted);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 220px;
+      width: 100%;
+    }
+
+    .suite-stats-row {
+      display: flex;
+      gap: 12px;
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .suite-stat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .dot-green { background-color: var(--green); }
+    .dot-red { background-color: var(--red); }
+    .dot-gray { background-color: var(--gray); }
+
+    /* Trend Chart Section */
+    .trend-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .trend-chart-container {
+      position: relative;
+      height: 250px;
+      width: 100%;
+    }
+
+    /* Defects Table */
+    .defects-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.775rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .defect-id {
+      font-family: monospace;
+      font-weight: 600;
+      color: var(--purple);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-critical {
+      background: rgba(239, 68, 68, 0.18);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .badge-high {
+      background: rgba(249, 115, 22, 0.18);
+      color: #fb923c;
+      border: 1px solid rgba(249, 115, 22, 0.4);
+    }
+
+    .badge-medium {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .badge-low {
+      background: rgba(59, 130, 246, 0.18);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .status-open {
+      color: #f87171;
+      background: rgba(239, 68, 68, 0.1);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .status-in-progress {
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.1);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .status-resolved, .status-closed {
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.1);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .empty-state {
+      padding: 40px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .empty-state-icon {
+      font-size: 2rem;
+      color: var(--green);
+    }
+
+    /* Performance Section */
+    .perf-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .perf-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .perf-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(107, 114, 128, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: var(--text-muted);
+    }
+
+    .perf-text h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+
+    .perf-text p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .perf-badge {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-sub);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      border: 1px solid var(--card-border);
+      white-space: nowrap;
+    }
+
+    /* Release Readiness Accordion */
+    .details-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    details {
+      width: 100%;
+    }
+
+    summary {
+      padding: 20px 24px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    summary:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    summary::after {
+      content: '▾';
+      font-size: 1.25rem;
+      color: var(--purple);
+      transition: transform 0.2s ease;
+    }
+
+    details[open] summary::after {
+      transform: rotate(180deg);
+    }
+
+    .details-body {
+      padding: 0 24px 24px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      font-size: 0.925rem;
+      line-height: 1.7;
+    }
+
+    .details-body p {
+      margin-top: 16px;
+    }
+
+    .agent-runs-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .agent-run-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .agent-name {
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .agent-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Footer */
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 20px;
+      border-top: 1px solid var(--card-border);
+      font-size: 0.8rem;
+      color: var(--text-sub);
+    }
+
+    .auto-refresh-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .suites-grid {
+        grid-template-columns: 1fr;
+      }
+      .verdict-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .verdict-meta {
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 16px;
+      }
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+      .header-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="header-left">
+        <div class="brand-badge">⚡ BLAST FRAMEWORK QA</div>
+        <h1 class="header-title">QA Dashboard</h1>
+        <p class="header-subtitle">BLAST Framework | Medusa.js eCommerce</p>
+      </div>
+      <div class="header-right">
+        <div class="timestamp-badge" id="lastRunTimestamp">
+          Last run: <span id="timestampValue">Checking...</span>
+        </div>
+        <a href="/" class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          Chat UI
+        </a>
+        <button class="btn btn-primary" id="refreshBtn" onclick="loadDashboardData()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="refreshIcon"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21h5v-5"></path></svg>
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- Verdict Banner -->
+    <section id="verdictBanner" class="verdict-banner verdict-none">
+      <div class="verdict-content">
+        <div class="verdict-pill" id="verdictPill">--</div>
+        <div class="verdict-details">
+          <div class="verdict-tagline">Release Quality Gate</div>
+          <div class="verdict-message" id="verdictMessage">Awaiting test execution results...</div>
+        </div>
+      </div>
+      <div class="verdict-meta">
+        <span class="run-badge" id="runIdBadge">RUN ID: --</span>
+        <span style="font-size: 0.8rem; color: var(--text-sub);" id="verdictTimestamp">--</span>
+      </div>
+    </section>
+
+    <!-- Summary Cards Row -->
+    <section class="summary-grid">
+      <!-- Total Tests -->
+      <div class="card card-total">
+        <div class="card-header-line">
+          <span class="card-label">Total Tests</span>
+          <span class="card-icon" style="color: var(--blue);">🧪</span>
+        </div>
+        <div class="card-value" id="cardTotal">0</div>
+        <div class="card-subtext" id="cardTotalSub">Across all test suites</div>
+      </div>
+
+      <!-- Passed -->
+      <div class="card card-passed">
+        <div class="card-header-line">
+          <span class="card-label">Passed</span>
+          <span class="card-icon" style="color: var(--green);">✅</span>
+        </div>
+        <div class="card-value" id="cardPassed">0</div>
+        <div class="card-subtext" id="cardPassedRate">0% pass rate</div>
+      </div>
+
+      <!-- Failed -->
+      <div class="card card-failed">
+        <div class="card-header-line">
+          <span class="card-label">Failed</span>
+          <span class="card-icon" style="color: var(--red);">❌</span>
+        </div>
+        <div class="card-value" id="cardFailed">0</div>
+        <div class="card-subtext" id="cardFailedSub">0 blocking defects</div>
+      </div>
+
+      <!-- Skipped -->
+      <div class="card card-skipped">
+        <div class="card-header-line">
+          <span class="card-label">Skipped</span>
+          <span class="card-icon" style="color: var(--gray);">⏭️</span>
+        </div>
+        <div class="card-value" id="cardSkipped">0</div>
+        <div class="card-subtext" id="cardSkippedSub">0% skipped</div>
+      </div>
+    </section>
+
+    <!-- Suite Breakdown Row (Side-by-side Bar Charts) -->
+    <section class="suites-grid">
+      <!-- API Tests Card -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span>🔌</span> API Tests Breakdown
+          </h2>
+          <span class="section-pill" id="apiSuitePill">Jest + supertest</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="apiChart"></canvas>
+        </div>
+        <div class="suite-stats-row">
+          <span class="suite-stat-badge"><span class="dot dot-green"></span> Passed: <strong id="apiPassedCount" style="color: var(--green);">0</strong></span>
+          <span class="suite-stat-badge"><span class="dot dot-red"></span> Failed: <strong id="apiFailedCount" style="color: var(--red);">0</strong></span>
+          <span class="suite-stat-badge"><span class="dot dot-gray"></span> Skipped: <strong id="apiSkippedCount" style="color: var(--gray);">0</strong></span>
+          <span style="margin-left: auto; color: var(--purple); font-weight: 600;" id="apiPassRate">0% Pass</span>
+        </div>
+      </div>
+
+      <!-- UI / E2E Tests Card -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span>🖥️</span> UI / E2E Tests Breakdown
+          </h2>
+          <span class="section-pill" id="uiSuitePill">Playwright</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="uiChart"></canvas>
+        </div>
+        <div class="suite-stats-row">
+          <span class="suite-stat-badge"><span class="dot dot-green"></span> Passed: <strong id="uiPassedCount" style="color: var(--green);">0</strong></span>
+          <span class="suite-stat-badge"><span class="dot dot-red"></span> Failed: <strong id="uiFailedCount" style="color: var(--red);">0</strong></span>
+          <span class="suite-stat-badge"><span class="dot dot-gray"></span> Skipped: <strong id="uiSkippedCount" style="color: var(--gray);">0</strong></span>
+          <span style="margin-left: auto; color: var(--purple); font-weight: 600;" id="uiPassRate">0% Pass</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trend Chart Section -->
+    <section class="trend-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>📈</span> Pass Rate Trend Across Execution Runs
+        </h2>
+        <span class="section-pill" id="trendRunCount">Historical Runs</span>
+      </div>
+      <div class="trend-chart-container">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Defects Table -->
+    <section class="defects-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>🐛</span> Identified Defects & Triage Classification
+        </h2>
+        <span class="section-pill" id="defectsCountBadge">0 Defects</span>
+      </div>
+      <div class="table-container">
+        <table id="defectsTable">
+          <thead>
+            <tr>
+              <th>Defect ID</th>
+              <th>Title</th>
+              <th>Severity</th>
+              <th>Classification</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="defectsTableBody">
+            <tr>
+              <td colspan="5">
+                <div class="empty-state">
+                  <div class="empty-state-icon">✨</div>
+                  <p>No defects reported</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Performance Metrics Section -->
+    <section class="perf-card">
+      <div class="perf-info">
+        <div class="perf-icon-box">⚡</div>
+        <div class="perf-text">
+          <h4>Performance Metrics</h4>
+          <p>Performance testing not in scope for this run. Excluded per architectural constitution (Section 2).</p>
+        </div>
+      </div>
+      <span class="perf-badge">EXCLUDED FROM SCOPE</span>
+    </section>
+
+    <!-- Release Readiness Reasoning (Expandable) -->
+    <section class="details-card">
+      <details open>
+        <summary>Release Readiness Assessment & Quality Reasoning</summary>
+        <div class="details-body">
+          <p id="reasoningText">
+            Awaiting test execution evaluation from VerdictAgent.
+          </p>
+
+          <div style="margin-top: 20px;">
+            <div style="font-size: 0.825rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+              BLAST Agent Orchestration Audit
+            </div>
+            <div class="agent-runs-list" id="agentRunsContainer">
+              <div class="agent-run-item">
+                <div class="agent-name">🤖 BlueprintAgent</div>
+                <div class="agent-desc">Test case generation & scenario mapping</div>
+              </div>
+              <div class="agent-run-item">
+                <div class="agent-name">🛡️ SentinelAgent</div>
+                <div class="agent-desc">API automated suite execution</div>
+              </div>
+              <div class="agent-run-item">
+                <div class="agent-name">🧭 NavigatorAgent</div>
+                <div class="agent-desc">Storefront Playwright E2E automation</div>
+              </div>
+              <div class="agent-run-item">
+                <div class="agent-name">🩺 TriageAgent</div>
+                <div class="agent-desc">Defect root cause analysis & classification</div>
+              </div>
+              <div class="agent-run-item">
+                <div class="agent-name">⚖️ VerdictAgent</div>
+                <div class="agent-desc">Release Go / No-Go governance</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div>QA Agent Hub &bull; BLAST Framework &bull; Medusa.js SUT</div>
+      <div class="auto-refresh-indicator">
+        <span class="pulse-dot"></span>
+        <span>Auto-refresh active (30s)</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Global chart instances
+    let apiChartInstance = null;
+    let uiChartInstance = null;
+    let trendChartInstance = null;
+
+    // Common Chart.js dark theme options
+    Chart.defaults.color = '#9ca3af';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    // Format ISO timestamp
+    function formatTime(isoString) {
+      if (!isoString) return 'N/A';
+      try {
+        const d = new Date(isoString);
+        return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      } catch (e) {
+        return isoString;
+      }
+    }
+
+    // Render Bar Chart helper
+    function renderBarChart(canvasId, label, passed, failed, skipped, existingInstance) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      if (existingInstance) {
+        existingInstance.destroy();
+      }
+
+      return new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Passed', 'Failed', 'Skipped'],
+          datasets: [{
+            label: label,
+            data: [passed, failed, skipped],
+            backgroundColor: [
+              '#10b981', // green
+              '#ef4444', // red
+              '#6b7280'  // gray
+            ],
+            borderColor: [
+              '#059669',
+              '#dc2626',
+              '#4b5563'
+            ],
+            borderWidth: 1,
+            borderRadius: 6,
+            maxBarThickness: 45
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#181824',
+              titleColor: '#f3f4f6',
+              bodyColor: '#e5e7eb',
+              borderColor: '#232336',
+              borderWidth: 1,
+              padding: 10
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#9ca3af', font: { weight: 500 } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { precision: 0, color: '#6b7280' }
+            }
+          }
+        }
+      });
+    }
+
+    // Render Trend Line Chart
+    function renderTrendChart(runsData, existingInstance) {
+      const ctx = document.getElementById(trendChartInstance ? 'trendChart' : 'trendChart').getContext('2d');
+      if (existingInstance) {
+        existingInstance.destroy();
+      }
+
+      if (!runsData || runsData.length === 0) {
+        return null;
+      }
+
+      // Sort chronological if timestamps exist
+      const sorted = [...runsData].sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
+      const labels = sorted.map(r => r.runId || 'Run');
+      const dataPoints = sorted.map(r => {
+        if (r.totals && typeof r.totals.passRate === 'number') {
+          return r.totals.passRate;
+        }
+        if (r.totals && r.totals.total > 0) {
+          return parseFloat(((r.totals.passed / r.totals.total) * 100).toFixed(1));
+        }
+        return 0;
+      });
+
+      return new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Pass Rate (%)',
+            data: dataPoints,
+            fill: true,
+            borderColor: '#6c63ff',
+            backgroundColor: 'rgba(108, 99, 255, 0.12)',
+            tension: 0.35,
+            pointBackgroundColor: '#6c63ff',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              labels: { color: '#9ca3af', boxWidth: 12 }
+            },
+            tooltip: {
+              backgroundColor: '#181824',
+              titleColor: '#f3f4f6',
+              bodyColor: '#e5e7eb',
+              borderColor: '#232336',
+              borderWidth: 1,
+              padding: 10,
+              callbacks: {
+                label: function(context) {
+                  return ` Pass Rate: ${context.parsed.y}%`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.03)' },
+              ticks: { color: '#9ca3af' }
+            },
+            y: {
+              min: 0,
+              max: 100,
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: {
+                callback: function(val) { return val + '%'; },
+                color: '#6b7280'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Populate UI with latest run data
+    function updateDashboard(latest, allRuns) {
+      if (!latest || !latest.totals) {
+        document.getElementById('verdictMessage').innerText = 'No test run data available yet.';
+        document.getElementById('timestampValue').innerText = 'No runs';
+        return;
+      }
+
+      // Header Timestamp
+      document.getElementById('timestampValue').innerText = formatTime(latest.timestamp);
+      document.getElementById('verdictTimestamp').innerText = formatTime(latest.timestamp);
+      document.getElementById('runIdBadge').innerText = (latest.runId || 'LATEST').toUpperCase();
+
+      // Verdict Banner
+      const verdict = (latest.verdict || 'UNKNOWN').toUpperCase();
+      const banner = document.getElementById('verdictBanner');
+      const pill = document.getElementById('verdictPill');
+      const msg = document.getElementById('verdictMessage');
+
+      banner.className = 'verdict-banner';
+      if (verdict === 'GO') {
+        banner.classList.add('verdict-go');
+        pill.innerText = 'GO';
+      } else if (verdict === 'GO-WITH-RISKS') {
+        banner.classList.add('verdict-go-with-risks');
+        pill.innerText = 'GO WITH RISKS';
+      } else if (verdict === 'NO-GO') {
+        banner.classList.add('verdict-no-go');
+        pill.innerText = 'NO-GO';
+      } else {
+        banner.classList.add('verdict-none');
+        pill.innerText = verdict;
+      }
+      msg.innerText = latest.verdictReason || 'All acceptance criteria evaluated.';
+
+      // Summary Cards
+      const totals = latest.totals || { total: 0, passed: 0, failed: 0, skipped: 0, passRate: 0 };
+      document.getElementById('cardTotal').innerText = totals.total;
+      document.getElementById('cardPassed').innerText = totals.passed;
+      document.getElementById('cardFailed').innerText = totals.failed;
+      document.getElementById('cardSkipped').innerText = totals.skipped;
+
+      const passRate = typeof totals.passRate === 'number' ? totals.passRate : (totals.total ? ((totals.passed / totals.total) * 100).toFixed(1) : 0);
+      document.getElementById('cardPassedRate').innerText = `${passRate}% overall pass rate`;
+      document.getElementById('cardFailedSub').innerText = `${totals.failed} failing assertion${totals.failed === 1 ? '' : 's'}`;
+      const skipRate = totals.total ? ((totals.skipped / totals.total) * 100).toFixed(1) : 0;
+      document.getElementById('cardSkippedSub').innerText = `${skipRate}% skipped`;
+
+      // Suites: API
+      const apiSuite = (latest.suites && latest.suites.api) ? latest.suites.api : { total: 0, passed: 0, failed: 0, skipped: 0, passRate: 0 };
+      document.getElementById('apiPassedCount').innerText = apiSuite.passed;
+      document.getElementById('apiFailedCount').innerText = apiSuite.failed;
+      document.getElementById('apiSkippedCount').innerText = apiSuite.skipped;
+      document.getElementById('apiPassRate').innerText = `${apiSuite.passRate || 0}% Pass`;
+      apiChartInstance = renderBarChart('apiChart', 'API Tests', apiSuite.passed, apiSuite.failed, apiSuite.skipped, apiChartInstance);
+
+      // Suites: UI / E2E
+      const uiSuite = (latest.suites && latest.suites.ui) ? latest.suites.ui : { total: 0, passed: 0, failed: 0, skipped: 0, passRate: 0 };
+      document.getElementById('uiPassedCount').innerText = uiSuite.passed;
+      document.getElementById('uiFailedCount').innerText = uiSuite.failed;
+      document.getElementById('uiSkippedCount').innerText = uiSuite.skipped;
+      document.getElementById('uiPassRate').innerText = `${uiSuite.passRate || 0}% Pass`;
+      uiChartInstance = renderBarChart('uiChart', 'UI Tests', uiSuite.passed, uiSuite.failed, uiSuite.skipped, uiChartInstance);
+
+      // Trend Chart
+      const runsToDisplay = (allRuns && allRuns.length > 0) ? allRuns : [latest];
+      document.getElementById('trendRunCount').innerText = `${runsToDisplay.length} Run${runsToDisplay.length === 1 ? '' : 's'}`;
+      trendChartInstance = renderTrendChart(runsToDisplay, trendChartInstance);
+
+      // Defects Table
+      const defects = latest.defects || [];
+      const tbody = document.getElementById('defectsTableBody');
+      const badgeCount = document.getElementById('defectsCountBadge');
+      badgeCount.innerText = `${defects.length} Defect${defects.length === 1 ? '' : 's'}`;
+
+      if (defects.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5">
+              <div class="empty-state">
+                <div class="empty-state-icon">✨</div>
+                <p>No defects reported</p>
+              </div>
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = defects.map(d => {
+          const sevLower = (d.severity || 'low').toLowerCase();
+          let sevClass = 'badge-low';
+          if (sevLower === 'critical') sevClass = 'badge-critical';
+          else if (sevLower === 'high') sevClass = 'badge-high';
+          else if (sevLower === 'medium') sevClass = 'badge-medium';
+
+          const stLower = (d.status || 'open').toLowerCase().replace(' ', '-');
+          let statusClass = 'status-open';
+          if (stLower.includes('progress')) statusClass = 'status-in-progress';
+          else if (stLower.includes('resolved')) statusClass = 'status-resolved';
+          else if (stLower.includes('closed')) statusClass = 'status-closed';
+
+          return `
+            <tr>
+              <td class="defect-id">${escapeHtml(d.id || 'N/A')}</td>
+              <td>${escapeHtml(d.title || 'Untitled')}</td>
+              <td><span class="badge ${sevClass}">${escapeHtml(d.severity || 'Low')}</span></td>
+              <td style="font-family: monospace; font-size: 0.8rem; color: #a5b4fc;">${escapeHtml(d.classification || 'UNKNOWN')}</td>
+              <td><span class="${statusClass}">${escapeHtml(d.status || 'Open')}</span></td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Reasoning
+      document.getElementById('reasoningText').innerText = latest.verdictReason || 'All quality gates evaluated.';
+
+      // Agent Runs
+      if (latest.agentRuns && latest.agentRuns.length > 0) {
+        const agentContainer = document.getElementById('agentRunsContainer');
+        agentContainer.innerHTML = latest.agentRuns.map(ag => {
+          let icon = '🤖';
+          if (ag.agent === 'SentinelAgent') icon = '🛡️';
+          else if (ag.agent === 'NavigatorAgent') icon = '🧭';
+          else if (ag.agent === 'TriageAgent') icon = '🩺';
+          else if (ag.agent === 'VerdictAgent') icon = '⚖️';
+          return `
+            <div class="agent-run-item">
+              <div class="agent-name">${icon} ${escapeHtml(ag.agent)}</div>
+              <div class="agent-desc">${escapeHtml(ag.outputSummary || ag.status)}</div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // Helper: HTML escaping
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Fetch data from API or static fallbacks
+    async function loadDashboardData() {
+      const refreshIcon = document.getElementById('refreshIcon');
+      if (refreshIcon) refreshIcon.style.animation = 'spin 1s linear infinite';
+
+      let latestData = null;
+      let allRuns = [];
+
+      try {
+        // First try primary API endpoints
+        const [latestRes, allRunsRes] = await Promise.all([
+          fetch('/api/results/latest').catch(e => null),
+          fetch('/api/results').catch(e => null)
+        ]);
+
+        if (latestRes && latestRes.ok) {
+          latestData = await latestRes.json();
+        }
+        if (allRunsRes && allRunsRes.ok) {
+          allRuns = await allRunsRes.json();
+        }
+      } catch (err) {
+        console.warn('Could not fetch from /api/results:', err);
+      }
+
+      // If API did not return data (e.g. running statically or server offline), try static results fallback
+      if (!latestData) {
+        try {
+          const run2Res = await fetch('./results/run-002.json').catch(e => null);
+          const run1Res = await fetch('./results/run-001.json').catch(e => null);
+
+          const r2 = (run2Res && run2Res.ok) ? await run2Res.json() : null;
+          const r1 = (run1Res && run1Res.ok) ? await run1Res.json() : null;
+
+          if (r2 || r1) {
+            latestData = r2 || r1;
+            allRuns = [r1, r2].filter(Boolean);
+          }
+        } catch (staticErr) {
+          console.warn('Could not fetch static results JSON:', staticErr);
+        }
+      }
+
+      if (latestData) {
+        updateDashboard(latestData, allRuns);
+      } else {
+        document.getElementById('verdictMessage').innerText = 'No test run data available yet. Run test suite to populate.';
+        document.getElementById('timestampValue').innerText = 'No runs yet';
+      }
+
+      if (refreshIcon) refreshIcon.style.animation = 'none';
+    }
+
+    // Init & Auto-refresh every 30 seconds
+    window.addEventListener('DOMContentLoaded', () => {
+      loadDashboardData();
+      setInterval(loadDashboardData, 30000);
+    });
+  </script>
+</body>
+</html>

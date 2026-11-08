@@ -1,0 +1,80 @@
+{
+  "runId": "run-002",
+  "timestamp": "2026-11-08T09:00:00.000Z",
+  "verdict": "GO",
+  "verdictReason": "18 of 18 API tests passed (100.0%). 10 of 10 E2E tests passed (100.0%). All previously identified defects have been resolved or closed. Zero open defects. Release approved for production deployment.",
+  "suites": {
+    "api": {
+      "total": 18,
+      "passed": 18,
+      "failed": 0,
+      "skipped": 0,
+      "passRate": 100.0
+    },
+    "ui": {
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "passRate": 100.0
+    },
+    "performance": null
+  },
+  "totals": {
+    "total": 28,
+    "passed": 28,
+    "failed": 0,
+    "skipped": 0,
+    "passRate": 100.0
+  },
+  "defects": [
+    {
+      "id": "DEF-001",
+      "title": "Cart total not updated after coupon removal",
+      "severity": "Medium",
+      "classification": "PRODUCT_BUG",
+      "status": "Resolved"
+    },
+    {
+      "id": "DEF-002",
+      "title": "Checkout address form allows invalid postal code format",
+      "severity": "Medium",
+      "classification": "PRODUCT_BUG",
+      "status": "Resolved"
+    },
+    {
+      "id": "DEF-003",
+      "title": "Login E2E test flaky on slow network simulation",
+      "severity": "Low",
+      "classification": "TEST_ISSUE",
+      "status": "Closed"
+    }
+  ],
+  "agentRuns": [
+    {
+      "agent": "BlueprintAgent",
+      "status": "completed",
+      "outputSummary": "28 test cases validated"
+    },
+    {
+      "agent": "SentinelAgent",
+      "status": "completed",
+      "outputSummary": "18 API tests executed (100% pass)"
+    },
+    {
+      "agent": "NavigatorAgent",
+      "status": "completed",
+      "outputSummary": "10 E2E tests executed (100% pass)"
+    },
+    {
+      "agent": "TriageAgent",
+      "status": "completed",
+      "outputSummary": "All defects verified resolved/closed"
+    },
+    {
+      "agent": "VerdictAgent",
+      "status": "completed",
+      "outputSummary": "GO verdict issued"
+    }
+  ]
+}
