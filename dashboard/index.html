@@ -926,6 +926,28 @@
       <span class="perf-badge">EXCLUDED FROM SCOPE</span>
     </section>
 
+    <!-- Demo Recording Section -->
+    <section class="trend-card" id="demoSection">
+      <div class="section-header">
+        <h2 class="section-title"><span>🎬</span> Demo Recording</h2>
+        <span class="section-pill" id="demoStatus">Checking...</span>
+      </div>
+      <video id="demoVideo" controls preload="metadata" style="width:100%;max-height:520px;border-radius:10px;background:#000;display:none;">
+        <source src="/demo/demo.webm" type="video/webm">
+      </video>
+      <p id="demoMissing" style="display:none;color:var(--text-muted);font-size:0.9rem;">
+        No recording found. Generate one with <code>node tools/record-demo.js</code> (server must be running).
+      </p>
+    </section>
+    <script>
+      fetch('/demo/demo.webm', { method: 'HEAD' }).then(r => {
+        const ok = r.ok;
+        document.getElementById('demoVideo').style.display = ok ? 'block' : 'none';
+        document.getElementById('demoMissing').style.display = ok ? 'none' : 'block';
+        document.getElementById('demoStatus').innerText = ok ? 'Chat → Agent → Dashboard' : 'Not recorded';
+      }).catch(() => { document.getElementById('demoMissing').style.display = 'block'; });
+    </script>
+
     <!-- Release Readiness Reasoning (Expandable) -->
     <section class="details-card">
       <details open>

@@ -36,6 +36,9 @@ app.use(express.static(publicDir));
 app.use('/api', chatRouter);
 app.use('/api/results', resultsRouter);
 
+// Serve demo recording (GET /demo/demo.webm)
+app.use('/demo', express.static(path.resolve(__dirname, '../dashboard/demo')));
+
 // Serve defect reports (GET /defects/DEF-001.md) as plain text
 app.use('/defects', express.static(path.resolve(__dirname, '../docs/defects'), {
   setHeaders: (res) => res.setHeader('Content-Type', 'text/plain; charset=utf-8')
