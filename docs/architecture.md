@@ -70,6 +70,33 @@ The system implements a local, privacy-preserving AI-driven QA automation hub ad
 +---------------------------------------------------------------------------------------+
 ```
 
+### 1.1 Agent Workflow (Mermaid — renders on GitHub)
+
+```mermaid
+flowchart TD
+    U([QA Lead / User]) -->|prompt| UI["Chat UI :3000 (frontend/)"]
+    UI -->|POST /api/chat| ORC["Orchestrator (backend/services/orchestrator.js)"]
+    ORC -->|system prompt + input| OLL["Ollama :11434 llama3.2"]
+    OLL --> ORC
+
+    ORC --> B["BlueprintAgent: test cases"]
+    B --> H1{{"Human review: coverage sign-off"}}
+    H1 --> S["SentinelAgent: Jest + supertest API tests"]
+    H1 --> N["NavigatorAgent: Playwright E2E tests"]
+    S --> H2{{"Human review: script check"}}
+    N --> H2
+    H2 --> RUN["tools/run-tests.js"]
+    RUN -->|HTTP| SUT[("Medusa.js API :9000 / Storefront :8000")]
+    RUN --> RES["dashboard/results/run-*.json"]
+    RES -->|failures| T["TriageAgent: defect reports"]
+    T --> H3{{"Human review: classification"}}
+    H3 --> DEF["docs/defects/DEF-*.md"]
+    RES --> V["VerdictAgent: GO / GO-WITH-RISKS / NO-GO"]
+    DEF --> V
+    V --> H4{{"Human review: release sign-off"}}
+    H4 --> DASH["Dashboard /dashboard"]
+```
+
 ---
 
 ## 2. Multi-Agent Role & Responsibility Matrix
@@ -88,42 +115,29 @@ The system implements a local, privacy-preserving AI-driven QA automation hub ad
 
 ```text
 project6/
-├── app/                                 # Central Web & Orchestrator Service
-│   ├── .env                             # Active environment configuration
-│   ├── .env.example                     # Sample environment variable template
-│   ├── package.json                     # Express app dependencies
-│   ├── server.js                        # Express server, Ollama client & API routes
-│   ├── agents/
-│   │   └── templates.js                 # 5 Agent prompts, personas, and keyword router
-│   └── public/
-│       └── index.html                   # Web Chat UI for interactive agent prompting
-├── dashboard/                           # Visual Quality Reporting Platform
-│   ├── index.html                       # Dark-mode dashboard powered by Chart.js
-│   └── results/                         # Test execution history & live metrics
-│       ├── run-001.json                 # Baseline test run record (GO-WITH-RISKS)
-│       ├── run-002.json                 # Validation test run record (GO)
-│       └── latest.json                  # Symlink / copy of latest test run
-├── docs/                                # Project Specifications & Deliverables
-│   ├── architecture.md                  # Deliverable 2: Architecture & Workflow
-│   ├── test_strategy.md                 # Deliverable 3: eCommerce Test Strategy
-│   └── ai_evaluation.md                 # Deliverable 6: AI Performance Evaluation
-├── tests/                               # Automated Test Suites
-│   ├── package.json                     # Test dependencies (Jest, Supertest, Playwright)
-│   ├── playwright.config.js             # Playwright browser runner configuration
-│   ├── jest.config.js                   # Jest runner & coverage configuration
-│   ├── api/                             # API automated tests (SentinelAgent)
-│   │   ├── auth.test.js
-│   │   ├── cart.test.js
-│   │   └── products.test.js
-│   └── e2e/                             # End-to-end tests (NavigatorAgent)
-│       └── checkout-flow.spec.js
-├── tools/                               # Automation & CLI Utilities
-│   └── run-tests.js                     # Unified test execution & metric aggregator
-├── findings.md                          # Defect tracking & verified facts log
-├── gemini.md                            # Project Constitution, Invariants & Schema
-├── progress.md                          # Real-time task progress tracker
-├── README.md                            # Deliverable 1: Comprehensive Project Guide
-└── task_plan.md                         # BLAST Framework Execution Checklist
+├── frontend/                 # Chat UI (index.html, style.css, app.js)
+├── backend/                  # Express server :3000
+│   ├── server.js
+│   ├── agents/templates.js   # 5 agent system prompts + trigger keywords
+│   ├── services/             # ollama.js, orchestrator.js
+│   ├── routes/               # chat.js, results.js
+│   └── .env.example
+├── dashboard/
+│   ├── index.html            # Chart.js dashboard
+│   └── results/              # run-001.json, run-002.json (sample data)
+├── tests/
+│   ├── api/                  # auth, products, cart, checkout (+ setup.js) — 32 tests
+│   ├── e2e/                  # auth, shop, cart, checkout specs — 21 tests
+│   └── playwright.config.js
+├── tools/run-tests.js        # Runs suites, writes results JSON
+├── docs/
+│   ├── architecture.md       # Deliverable 2
+│   ├── test_strategy.md      # Deliverable 3
+│   ├── test_cases.md         # Deliverable 4
+│   ├── defects/DEF-00x.md    # Deliverable 4 (sample defect reports)
+│   └── ai_evaluation.md      # Deliverable 6
+├── BLAST.md, gemini.md, task_plan.md, findings.md, progress.md
+└── README.md                 # Deliverable 1
 ```
 
 ---

@@ -84,14 +84,14 @@ Ensure the Medusa instance contains base eCommerce fixtures:
 - At least one published product with sellable variants in stock.
 
 ### Step 5: Configure Environment Variables
-Copy `.env.example` into `.env` within the `app` directory:
+Copy `.env.example` into `.env` within the `backend` directory:
 ```bash
 cp backend/.env.example backend/.env
 ```
 Ensure the parameters point to your local services:
 ```env
 PORT=3000
-OLLAMA_URL=http://localhost:11434
+OLLAMA_URL=http://127.0.0.1:11434
 OLLAMA_MODEL=llama3.2
 MEDUSA_API_URL=http://localhost:9000
 MEDUSA_STOREFRONT_URL=http://localhost:8000
@@ -101,10 +101,11 @@ TEST_CUSTOMER_PASSWORD=testpassword123
 
 ### Step 6: Install Dependencies & Start the Agent Hub
 ```bash
-cd app
+cd backend
 npm install
 npm start
 ```
+> Use `127.0.0.1` (not `localhost`) for Ollama — Node 17+ resolves `localhost` to IPv6 `::1`, which Ollama does not listen on.
 
 ### Step 7: Access the Web Chat UI
 Open your web browser and navigate to:
@@ -146,12 +147,17 @@ The system features five purpose-built agents defined in `backend/agents/templat
 
 ## 📦 Deliverables Checklist
 
-- [x] **Deliverable 1: Comprehensive README** (`README.md`)
-- [x] **Deliverable 2: Architecture Documentation** (`docs/architecture.md`)
-- [x] **Deliverable 3: 2-Page Test Strategy** (`docs/test_strategy.md`)
-- [x] **Deliverable 4: Test Implementation Suites** (`tests/api/`, `tests/e2e/`, `tools/run-tests.js`)
-- [x] **Deliverable 5: Live HTML Quality Dashboard** (`dashboard/index.html` & `dashboard/results/`)
-- [x] **Deliverable 6: 1-Page AI Evaluation Retrospective** (`docs/ai_evaluation.md`)
+| # | Deliverable | Location |
+|---|-------------|----------|
+| 1 | Source repo + README | This repo, `README.md` |
+| 2 | Architecture diagram (Mermaid + agent matrix) | [docs/architecture.md](docs/architecture.md) |
+| 3 | Test strategy | [docs/test_strategy.md](docs/test_strategy.md) |
+| 4 | Test artifacts | [docs/test_cases.md](docs/test_cases.md), `tests/api/` (32), `tests/e2e/` (21), [docs/defects/](docs/defects/) |
+| 5 | QA dashboard | `http://localhost:3000/dashboard` (`dashboard/`) |
+| 6 | AI evaluation note | [docs/ai_evaluation.md](docs/ai_evaluation.md) |
+| 7 | Demo recording | Submitted separately |
+
+> ⚠️ `dashboard/results/run-001.json` / `run-002.json` and `docs/defects/DEF-00x.md` are **sample data** (flagged `sampleData: true`). Replace with real runs via `node tools/run-tests.js` once Medusa is running.
 
 ---
 
@@ -173,37 +179,21 @@ The project is structured according to the **BLAST Framework**:
 
 ```text
 project6/
-├── README.md                            # Comprehensive project guide & documentation
-├── findings.md                          # Defect tracking and empirical findings log
-├── gemini.md                            # Project Constitution and architectural invariants
-├── progress.md                          # Real-time task progress tracker
-├── task_plan.md                         # BLAST Framework phase checklist
-├── app/                                 # Web Chat UI & Agent Orchestrator server
-│   ├── .env                             # Environment configuration
-│   ├── .env.example                     # Environment template
-│   ├── package.json                     # Express dependencies
-│   ├── server.js                        # Express server & Ollama integration
-│   ├── agents/
-│   │   └── templates.js                 # 5 Agent templates & keyword router
-│   └── public/
-│       └── index.html                   # Interactive agent web chat interface
-├── dashboard/                           # Test reporting platform
-│   ├── index.html                       # Dark-mode dashboard with Chart.js
-│   └── results/                         # Test execution runs (JSON)
-│       ├── run-001.json                 # Initial run (GO-WITH-RISKS)
-│       └── run-002.json                 # Improved run (GO)
-├── docs/                                # Formal QA Documentation
-│   ├── architecture.md                  # Workflow, diagrams, port mappings
-│   ├── test_strategy.md                 # 2-Page eCommerce test strategy
-│   └── ai_evaluation.md                 # 1-Page AI performance retrospective
-├── tests/                               # Test Automation Suites
-│   ├── package.json                     # Jest and Playwright dependencies
-│   ├── jest.config.js                   # Jest configuration
-│   ├── playwright.config.js             # Playwright configuration
-│   ├── api/                             # API tests (SentinelAgent)
-│   └── e2e/                             # End-to-end tests (NavigatorAgent)
-└── tools/                               # Test Runners & CLI Utilities
-    └── run-tests.js                     # Unified test execution script
+├── frontend/                 # Chat UI (index.html, style.css, app.js)
+├── backend/                  # Express server :3000
+│   ├── server.js
+│   ├── agents/templates.js   # 5 agent system prompts + trigger keywords
+│   ├── services/             # ollama.js, orchestrator.js
+│   ├── routes/               # chat.js, results.js
+│   └── .env.example
+├── dashboard/                # Chart.js dashboard + results/run-*.json
+├── tests/
+│   ├── api/                  # Jest + supertest (32 tests)
+│   ├── e2e/                  # Playwright (21 tests)
+│   └── playwright.config.js
+├── tools/run-tests.js        # Unified test runner → results JSON
+├── docs/                     # architecture, test_strategy, test_cases, defects/, ai_evaluation
+└── BLAST.md, gemini.md, task_plan.md, findings.md, progress.md
 ```
 
 ---

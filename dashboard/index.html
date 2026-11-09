@@ -888,6 +888,7 @@
         </h2>
         <span class="section-pill" id="defectsCountBadge">0 Defects</span>
       </div>
+      <div id="defectCounts" style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px 0;font-size:0.8rem;color:var(--text-muted);"></div>
       <div class="table-container">
         <table id="defectsTable">
           <thead>
@@ -1146,7 +1147,7 @@
       }
 
       // Header Timestamp
-      document.getElementById('timestampValue').innerText = formatTime(latest.timestamp);
+      document.getElementById('timestampValue').innerText = formatTime(latest.timestamp) + (latest.sampleData ? ' · SAMPLE DATA' : '');
       document.getElementById('verdictTimestamp').innerText = formatTime(latest.timestamp);
       document.getElementById('runIdBadge').innerText = (latest.runId || 'LATEST').toUpperCase();
 
@@ -1212,6 +1213,11 @@
       const badgeCount = document.getElementById('defectsCountBadge');
       badgeCount.innerText = `${defects.length} Defect${defects.length === 1 ? '' : 's'}`;
 
+      // Counts by severity and status
+      const tally = (key) => defects.reduce((m, d) => { const k = d[key] || 'Unknown'; m[k] = (m[k] || 0) + 1; return m; }, {});
+      const chip = (label, obj) => Object.entries(obj).map(([k, v]) => `<span class="suite-stat-badge">${label}: ${escapeHtml(k)} <strong>${v}</strong></span>`).join('');
+      document.getElementById('defectCounts').innerHTML = chip('Severity', tally('severity')) + chip('Status', tally('status'));
+
       if (defects.length === 0) {
         tbody.innerHTML = `
           <tr>
@@ -1239,7 +1245,7 @@
 
           return `
             <tr>
-              <td class="defect-id">${escapeHtml(d.id || 'N/A')}</td>
+              <td class="defect-id"><a href="${escapeHtml(d.reportUrl || ('/defects/' + (d.id || '') + '.md'))}" target="_blank" style="color:inherit;text-decoration:underline;">${escapeHtml(d.id || 'N/A')}</a></td>
               <td>${escapeHtml(d.title || 'Untitled')}</td>
               <td><span class="badge ${sevClass}">${escapeHtml(d.severity || 'Low')}</span></td>
               <td style="font-family: monospace; font-size: 0.8rem; color: #a5b4fc;">${escapeHtml(d.classification || 'UNKNOWN')}</td>

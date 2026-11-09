@@ -36,6 +36,11 @@ app.use(express.static(publicDir));
 app.use('/api', chatRouter);
 app.use('/api/results', resultsRouter);
 
+// Serve defect reports (GET /defects/DEF-001.md) as plain text
+app.use('/defects', express.static(path.resolve(__dirname, '../docs/defects'), {
+  setHeaders: (res) => res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+}));
+
 // Serve Dashboard (GET /dashboard -> ../dashboard/index.html)
 app.get('/dashboard', (req, res) => {
   const dashboardPath = path.resolve(__dirname, '../dashboard/index.html');
